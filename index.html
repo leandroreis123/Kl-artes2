@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🪵 KL ARTES — Marcenaria Pro</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KL ARTES">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+ --azul:#0f172a;
+ --azul2:#1e3a8a;
+ --vermelho:#dc2626;
+ --cinza:#e5e7eb;
+}
+
+*{ box-sizing:border-box; font-family:'Segoe UI',Arial; -webkit-tap-highlight-color:transparent; }
+
+body{
+ margin:0;
+ background:linear-gradient(180deg,#020617,#020617,#0f172a);
+ color:#e5e7eb;
+ min-height:100vh;
+}
+
+header{
+ background:linear-gradient(135deg,#1e3a8a,#2563eb);
+ padding:20px 16px;
+ text-align:center;
+ font-size:20px;
+ font-weight:900;
+ letter-spacing:1px;
+}
+
+header small{
+ display:block;
+ font-size:13px;
+ font-weight:700;
+ opacity:.9;
+ margin-top:4px;
+}
+
+nav{
+ display:flex;
+ gap:8px;
+ justify-content:center;
+ background:#020617;
+ padding:10px;
+ position:sticky;
+ top:0;
+ z-index:10;
+ flex-wrap:wrap;
+}
+
+nav button{
+ background:#1e40af;
+ border:none;
+ padding:14px 16px;
+ border-radius:14px;
+ color:#fff;
+ font-weight:800;
+ cursor:pointer;
+ font-size:15px;
+ touch-action:manipulation;
+ min-height:48px;
+}
+
+section{
+ display:none;
+ padding:14px;
+}
+
+section.active{
+ display:block;
+}
+
+.card,.item{
+ background:#fff;
+ color:#020617;
+ padding:16px;
+ border-radius:18px;
+ box-shadow:0 15px 30px rgba(0,0,0,.4);
+}
+
+.list{
+ display:grid;
+ gap:16px;
+ margin-top:16px;
+}
+
+label{
+ margin-top:12px;
+ display:block;
+ font-weight:800;
+ font-size:15px;
+}
+
+input[type="text"],input[type="number"],input:not([type]){
+ width:100%;
+ padding:14px;
+ border-radius:14px;
+ border:1px solid #cbd5f5;
+ margin-bottom:6px;
+ font-size:16px;
+ -webkit-appearance:none;
+ appearance:none;
+}
+
+input:focus{
+ outline:2px solid #2563eb;
+ border-color:#2563eb;
+}
+
+.primary{
+ margin-top:8px;
+ background:linear-gradient(135deg,#1e3a8a,#2563eb);
+ color:#fff;
+ border:none;
+ padding:16px;
+ border-radius:14px;
+ width:100%;
+ font-weight:900;
+ cursor:pointer;
+ font-size:16px;
+ touch-action:manipulation;
+ min-height:52px;
+ display:block;
+}
+
+.primary.alt{ background:#0f172a; }
+.primary.danger{ background:#dc2626; }
+
+.badge{
+ display:inline-block;
+ background:#e5e7eb;
+ padding:6px 10px;
+ border-radius:999px;
+ font-size:13px;
+ margin:3px;
+ font-weight:700;
+}
+
+/* ---- CANVAS ---- */
+.canvas-wrap{
+ position:relative;
+ width:100%;
+ margin-top:8px;
+ border-radius:16px;
+ overflow:hidden;
+ background:#fff;
+ border:2px solid #cbd5f5;
+}
+
+canvas{
+ display:block;
+ width:100%;
+ touch-action:none;
+ cursor:crosshair;
+}
+
+/* ---- TOOLS ---- */
+#tools{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin-top:10px;
+ align-items:center;
+}
+
+#tools button{
+ padding:12px 16px;
+ border-radius:999px;
+ border:2px solid transparent;
+ font-weight:800;
+ cursor:pointer;
+ background:#1e40af;
+ color:#fff;
+ transition:.15s;
+ touch-action:manipulation;
+ min-height:48px;
+ font-size:14px;
+}
+
+#tools button.ativo{
+ border-color:#f59e0b;
+ background:#1d4ed8;
+ box-shadow:0 0 0 3px #fbbf2488;
+}
+
+#tools input[type="number"]{
+ width:80px;
+ padding:12px;
+ border-radius:999px;
+ border:2px solid #cbd5f5;
+ font-weight:800;
+ font-size:15px;
+ margin:0;
+}
+
+.card img,.item img{
+ width:100%;
+ border-radius:14px;
+ margin-top:10px;
+ border:1px solid #e5e7eb;
+}
+
+.campo-edit{ margin:4px 0; }
+</style>
+</head>
+
+<body>
+
+<header>
+ 🪵 KL ARTES
+ <small>100% MDF — Sistema Profissional de Pedidos</small>
+</header>
+
+<nav>
+ <button onclick="show('novo')">📝 Novo Pedido</button>
+ <button onclick="show('clientes')">📦 Em Andamento</button>
+ <button onclick="show('finalizados')">✅ Finalizados</button>
+</nav>
+
+<!-- NOVO PEDIDO -->
+<section id="novo" class="active">
+<div class="card">
+
+ <label>👤 Nome do Cliente</label>
+ <input id="cliente" type="text" placeholder="Ex: João Silva" autocomplete="off">
+
+ <label>📞 Contato</label>
+ <input id="contato" type="text" placeholder="Ex: (11) 99999-9999" autocomplete="off">
+
+ <label>🪑 Tipo de Móvel</label>
+ <input id="movel" type="text" placeholder="Ex: Guarda-roupa 3 portas" autocomplete="off">
+
+ <label>📍 Endereço</label>
+ <input id="endereco" type="text" placeholder="Ex: Rua das Flores, 123" autocomplete="off">
+
+ <label>💰 Preço (R$)</label>
+ <input id="preco" type="text" placeholder="Ex: 1500,00" autocomplete="off">
+
+ <label>✏️ Desenho / Rascunho</label>
+ <div class="canvas-wrap">
+  <canvas id="canvas"></canvas>
+ </div>
+
+ <div id="tools">
+  <button id="btnDraw" class="ativo" onclick="setMode('draw')">✏️ Desenhar</button>
+  <button id="btnErase" onclick="setMode('erase')">🧽 Borracha</button>
+  <button id="btnNumber" onclick="setMode('number')">🔢 Número</button>
+  <input id="numValue" type="number" placeholder="Nº" min="0" style="width:80px">
+  <button onclick="limpar()">🗑️ Limpar</button>
+ </div>
+ <div id="toolsMelhorar" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+  <button style="padding:12px 16px;border-radius:999px;border:none;font-weight:800;cursor:pointer;background:#7c3aed;color:#fff;touch-action:manipulation;min-height:48px;font-size:14px" onclick="melhorarDesenho()">✨ Melhorar Desenho</button>
+  <button id="btnUndoMelhorar" style="display:none;padding:12px 16px;border-radius:999px;border:none;font-weight:800;cursor:pointer;background:#475569;color:#fff;touch-action:manipulation;min-height:48px;font-size:14px" onclick="desfazerMelhoria()">↩️ Desfazer</button>
+ </div>
+ <div style="font-size:12px;color:#94a3b8;margin-top:4px">✨ Alisa o traço, endireita linhas retas e fecha formas (retângulos/círculos) automaticamente.</div>
+
+ <button class="primary" onclick="salvar()">💾 Salvar Pedido</button>
+
+</div>
+</section>
+
+<!-- ANDAMENTO -->
+<section id="clientes">
+ <h3>📦 Pedidos em Andamento</h3>
+ <div class="card" style="margin-bottom:16px">
+  <div id="blocoImportar">
+   <button class="primary" onclick="document.getElementById('arquivoImportar').click()">📥 Importar Pedidos</button>
+   <input type="file" id="arquivoImportar" accept="application/json" style="display:none" onchange="importarDados(event)">
+  </div>
+  <button class="primary alt" onclick="exportarDados()">📤 Exportar Backup</button>
+ </div>
+ <div class="list" id="listaClientes"></div>
+</section>
+
+<!-- FINALIZADOS -->
+<section id="finalizados">
+ <h3>✅ Pedidos Finalizados</h3>
+ <div class="list" id="listaFinalizados"></div>
+</section>
+
+<script>
+/* ---- NAVEGAÇÃO ---- */
+const sections = document.querySelectorAll('section');
+function show(id){
+  sections.forEach(s => s.classList.toggle('active', s.id === id));
+}
+
+/* ---- CANVAS ---- */
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+
+/* Guardamos o desenho como "traços" (pontos), não só como imagem.
+   Isso é o que permite a função ✨ Melhorar Desenho depois. */
+let strokes = [];          // { type:'draw', points:[{x,y}] } ou { type:'number', x,y,text }
+let currentStroke = null;
+let canvasLogicalW = null;
+let canvasLogicalH = null;
+
+function redimensionarCanvas(){
+  const w = canvas.parentElement.clientWidth;
+  const h = Math.round(w * 0.65);
+
+  if(canvasLogicalW && (canvasLogicalW !== w || canvasLogicalH !== h)){
+    const sx = w / canvasLogicalW, sy = h / canvasLogicalH;
+    strokes.forEach(s => {
+      if(s.type === 'number'){ s.x *= sx; s.y *= sy; }
+      else { s.points.forEach(pt => { pt.x *= sx; pt.y *= sy; }); }
+    });
+  }
+
+  canvas.width  = w;
+  canvas.height = h;
+  canvas.style.height = h + 'px';
+  canvasLogicalW = w;
+  canvasLogicalH = h;
+  redrawAll();
+}
+
+window.addEventListener('load',   redimensionarCanvas);
+window.addEventListener('resize', redimensionarCanvas);
+
+let mode = 'draw';
+let drawing = false;
+let editandoRascunho = null;
+
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('#tools button').forEach(b => b.classList.remove('ativo'));
+  const mapa = { draw:'btnDraw', erase:'btnErase', number:'btnNumber' };
+  if(mapa[m]) document.getElementById(mapa[m]).classList.add('ativo');
+}
+
+function pos(e){
+  const r = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / r.width;
+  const scaleY = canvas.height / r.height;
+  const src = e.touches ? e.touches[0] : e;
+  return {
+    x: (src.clientX - r.left) * scaleX,
+    y: (src.clientY - r.top)  * scaleY
+  };
+}
+
+canvas.addEventListener('mousedown',  iniciarDesenho);
+canvas.addEventListener('touchstart', iniciarDesenho, { passive: false });
+canvas.addEventListener('mousemove',  continuarDesenho);
+canvas.addEventListener('touchmove',  continuarDesenho, { passive: false });
+canvas.addEventListener('mouseup',    finalizarGesto);
+canvas.addEventListener('touchend',   finalizarGesto);
+canvas.addEventListener('mouseleave', finalizarGesto);
+
+function iniciarDesenho(e){
+  e.preventDefault();
+  const p = pos(e);
+  if(mode === 'number'){
+    const n = document.getElementById('numValue').value || '0';
+    const s = { type:'number', x:p.x, y:p.y, text:n };
+    strokes.push(s);
+    desenharNumero(s);
+    return;
+  }
+  if(mode === 'erase'){
+    drawing = true;
+    apagarPerto(p);
+    return;
+  }
+  drawing = true;
+  currentStroke = { type:'draw', points:[p] };
+  strokes.push(currentStroke);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+}
+
+function continuarDesenho(e){
+  if(!drawing) return;
+  e.preventDefault();
+  const p = pos(e);
+  if(mode === 'draw'){
+    currentStroke.points.push(p);
+    ctx.lineWidth   = 3;
+    ctx.strokeStyle = '#111';
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  } else if(mode === 'erase'){
+    apagarPerto(p);
+  }
+}
+
+function finalizarGesto(){
+  drawing = false;
+  currentStroke = null;
+}
+
+function apagarPerto(p){
+  const raio = 18;
+  ctx.clearRect(p.x - raio, p.y - raio, raio*2, raio*2);
+  const novas = [];
+  strokes.forEach(s => {
+    if(s.type === 'number'){
+      if(Math.hypot(s.x - p.x, s.y - p.y) > raio*1.2) novas.push(s);
+      return;
+    }
+    let atual = [];
+    s.points.forEach(pt => {
+      if(Math.hypot(pt.x - p.x, pt.y - p.y) > raio){
+        atual.push(pt);
+      } else if(atual.length > 1){
+        novas.push({ type:'draw', points:atual });
+        atual = [];
+      } else {
+        atual = [];
+      }
+    });
+    if(atual.length > 1) novas.push({ type:'draw', points:atual });
+  });
+  strokes = novas;
+}
+
+function desenharNumero(s){
+  ctx.font      = '20px Arial';
+  ctx.fillStyle = '#111';
+  ctx.fillText(s.text, s.x, s.y);
+}
+
+function redrawAll(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  strokes.forEach(s => {
+    if(s.type === 'number'){ desenharNumero(s); return; }
+    const pts = s.points;
+    if(pts.length < 2) return;
+    ctx.lineWidth   = 3;
+    ctx.strokeStyle = '#111';
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.stroke();
+  });
+}
+
+function limpar(){
+  strokes = [];
+  currentStroke = null;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById('btnUndoMelhorar').style.display = 'none';
+}
+
+/* ---- ✨ MELHORAR DESENHO ---- */
+function distEntrePontos(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+function distPontoSegmento(p, a, b){
+  const dx = b.x-a.x, dy = b.y-a.y;
+  const len2 = dx*dx + dy*dy;
+  if(len2 === 0) return distEntrePontos(p,a);
+  let t = ((p.x-a.x)*dx + (p.y-a.y)*dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return distEntrePontos(p, { x:a.x+t*dx, y:a.y+t*dy });
+}
+
+function simplificarRDP(pts, epsilon){
+  if(pts.length < 3) return pts;
+  let maxDist = 0, idx = 0;
+  for(let i = 1; i < pts.length-1; i++){
+    const d = distPontoSegmento(pts[i], pts[0], pts[pts.length-1]);
+    if(d > maxDist){ maxDist = d; idx = i; }
+  }
+  if(maxDist > epsilon){
+    const esq = simplificarRDP(pts.slice(0, idx+1), epsilon);
+    const dir = simplificarRDP(pts.slice(idx), epsilon);
+    return esq.slice(0, -1).concat(dir);
+  }
+  return [pts[0], pts[pts.length-1]];
+}
+
+function suavizarChaikin(pts, iteracoes){
+  let atual = pts;
+  for(let it = 0; it < iteracoes; it++){
+    const novo = [atual[0]];
+    for(let i = 0; i < atual.length-1; i++){
+      const p0 = atual[i], p1 = atual[i+1];
+      novo.push(
+        { x:0.75*p0.x+0.25*p1.x, y:0.75*p0.y+0.25*p1.y },
+        { x:0.25*p0.x+0.75*p1.x, y:0.25*p0.y+0.75*p1.y }
+      );
+    }
+    novo.push(atual[atual.length-1]);
+    atual = novo;
+  }
+  return atual;
+}
+
+function bbox(pts){
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(p => {
+    minX=Math.min(minX,p.x); maxX=Math.max(maxX,p.x);
+    minY=Math.min(minY,p.y); maxY=Math.max(maxY,p.y);
+  });
+  return { minX,maxX,minY,maxY };
+}
+
+function anguloSnap(p1, p2){
+  // Se o traço estiver perto de horizontal ou vertical, ele vira
+  // perfeitamente horizontal/vertical (reto de verdade).
+  const dx = p2.x-p1.x, dy = p2.y-p1.y;
+  const ang = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180/Math.PI; // 0=horizontal, 90=vertical
+  const TOL = 15; // graus de tolerância
+  if(ang <= TOL){
+    const y = (p1.y+p2.y)/2;
+    return [{ x:p1.x, y }, { x:p2.x, y }];
+  }
+  if(ang >= 90-TOL){
+    const x = (p1.x+p2.x)/2;
+    return [{ x, y:p1.y }, { x, y:p2.y }];
+  }
+  return [p1, p2];
+}
+
+function ajustarEncaixe(procs){
+  // Faz linhas retas "encaixarem" nas bordas de retângulos próximos
+  // (ex: linha dividindo uma caixa ao meio), pra não sobrar nem faltar espaço.
+  const TOLER = 26; // px de tolerância pra considerar que a ponta "quase toca" a borda
+  const rects = procs.filter(p => p && p.kind === 'rect');
+  if(!rects.length) return;
+  procs.forEach(p => {
+    if(!p || p.kind !== 'line') return;
+    const [a, b] = p.points;
+    const horizontal = Math.abs(a.y-b.y) < 0.5;
+    const vertical   = Math.abs(a.x-b.x) < 0.5;
+    if(!horizontal && !vertical) return;
+    rects.forEach(r => {
+      const box = r.box;
+      if(horizontal && a.y >= box.minY-TOLER && a.y <= box.maxY+TOLER){
+        const esq = a.x < b.x ? a : b, dir = a.x < b.x ? b : a;
+        if(Math.abs(esq.x-box.minX) < TOLER) esq.x = box.minX;
+        if(Math.abs(dir.x-box.maxX) < TOLER) dir.x = box.maxX;
+      } else if(vertical && a.x >= box.minX-TOLER && a.x <= box.maxX+TOLER){
+        const cima = a.y < b.y ? a : b, baixo = a.y < b.y ? b : a;
+        if(Math.abs(cima.y-box.minY) < TOLER) cima.y = box.minY;
+        if(Math.abs(baixo.y-box.maxY) < TOLER) baixo.y = box.maxY;
+      }
+    });
+  });
+}
+
+function processarTraco(stroke){
+  const pts = stroke.points;
+  if(pts.length < 3) return { kind:'freeform', points:pts };
+
+  const box  = bbox(pts);
+  const diag = Math.hypot(box.maxX-box.minX, box.maxY-box.minY) || 1;
+  const canvasDiag = Math.hypot(canvas.width, canvas.height);
+
+  // Traço pequeno = provavelmente número/letra escrito à mão à pressa.
+  // Aqui só alisamos o traço (tira tremor), sem endireitar nem virar forma,
+  // pra não deformar o número.
+  if(diag < canvasDiag*0.09){
+    const simplLeve = simplificarRDP(pts, diag*0.015);
+    return { kind:'digito', points: suavizarChaikin(simplLeve.length>2?simplLeve:pts, 2) };
+  }
+
+  // epsilon maior = menos pontos = cantos mais "retos"
+  const simplificado = simplificarRDP(pts, diag*0.025);
+
+  const first = pts[0], last = pts[pts.length-1];
+  const compLinha = distEntrePontos(first, last);
+  let desvioMax = 0;
+  pts.forEach(p => { desvioMax = Math.max(desvioMax, distPontoSegmento(p, first, last)); });
+
+  // Linha reta? (mais tolerante agora)
+  if(compLinha > diag*0.18 && desvioMax < Math.max(8, compLinha*0.09)){
+    return { kind:'line', points: anguloSnap(first, last) };
+  }
+
+  // Forma fechada?
+  const fechado = distEntrePontos(first, last) < diag*0.18 && diag > 22;
+  if(fechado){
+    let erroRetangulo = 0;
+    pts.forEach(p => {
+      const d = Math.min(Math.abs(p.x-box.minX), Math.abs(p.x-box.maxX), Math.abs(p.y-box.minY), Math.abs(p.y-box.maxY));
+      erroRetangulo += d;
+    });
+    erroRetangulo /= pts.length;
+    if(erroRetangulo < diag*0.08){
+      return { kind:'rect', box };
+    }
+
+    const cx = (box.minX+box.maxX)/2, cy = (box.minY+box.maxY)/2;
+    const raios = pts.map(p => Math.hypot(p.x-cx, p.y-cy));
+    const raioMedio = raios.reduce((a,b)=>a+b,0)/raios.length;
+    const variancia = Math.sqrt(raios.reduce((a,r)=>a+(r-raioMedio)**2,0)/raios.length);
+    if(variancia < raioMedio*0.2){
+      return { kind:'circle', cx, cy, r:raioMedio };
+    }
+
+    // não é retângulo nem círculo: mantém como polígono de retas entre os cantos
+    return { kind:'closed', points: simplificado };
+  }
+
+  // aberto e não é uma única reta: traça retas entre os cantos detectados
+  return { kind:'freeform', points: simplificado };
+}
+
+function desenharProcessado(proc){
+  ctx.lineWidth   = proc.kind === 'digito' ? 2.6 : 3.2;
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  if(proc.kind === 'digito'){
+    const pts = proc.points;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i = 1; i < pts.length-1; i++){
+      const mx = (pts[i].x+pts[i+1].x)/2, my = (pts[i].y+pts[i+1].y)/2;
+      ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+    }
+    ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
+    ctx.stroke();
+  } else if(proc.kind === 'line'){
+    ctx.beginPath();
+    ctx.moveTo(proc.points[0].x, proc.points[0].y);
+    ctx.lineTo(proc.points[1].x, proc.points[1].y);
+    ctx.stroke();
+  } else if(proc.kind === 'rect'){
+    const b = proc.box;
+    ctx.strokeRect(b.minX, b.minY, b.maxX-b.minX, b.maxY-b.minY);
+  } else if(proc.kind === 'circle'){
+    ctx.beginPath();
+    ctx.arc(proc.cx, proc.cy, proc.r, 0, Math.PI*2);
+    ctx.stroke();
+  } else {
+    const pts = proc.points;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    if(proc.kind === 'closed') ctx.closePath();
+    ctx.stroke();
+  }
+}
+
+let backupAntesDeMelhorar = null;
+
+function melhorarDesenho(){
+  const tracosDesenho = strokes.filter(s => s.type === 'draw' && s.points.length >= 2);
+  if(!tracosDesenho.length){
+    alert('Desenhe algo no quadro antes de usar o ✨ Melhorar Desenho.');
+    return;
+  }
+  backupAntesDeMelhorar = JSON.parse(JSON.stringify(strokes));
+
+  // 1ª passada: processa cada traço (reconhece retas, retângulos, círculos...)
+  const procs = strokes.map(s => {
+    if(s.type === 'number') return null;
+    if(s.points.length < 2) return null;
+    return processarTraco(s);
+  });
+
+  // 2ª passada: linhas retas "encaixam" nas bordas de retângulos próximos
+  ajustarEncaixe(procs);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  strokes.forEach((s, i) => {
+    if(s.type === 'number'){ desenharNumero(s); return; }
+    if(s.points.length < 2) return;
+    desenharProcessado(procs[i]);
+  });
+
+  document.getElementById('btnUndoMelhorar').style.display = 'inline-block';
+}
+
+function desfazerMelhoria(){
+  if(!backupAntesDeMelhorar) return;
+  strokes = JSON.parse(JSON.stringify(backupAntesDeMelhorar));
+  backupAntesDeMelhorar = null;
+  redrawAll();
+  document.getElementById('btnUndoMelhorar').style.display = 'none';
+}
+
+/* ---- DADOS ---- */
+let pedidos     = JSON.parse(localStorage.getItem('pedidos'))     || [];
+let finalizados = JSON.parse(localStorage.getItem('finalizados')) || [];
+
+/* ---- SALVAR ---- */
+function salvar(){
+  const data = {
+    cliente:  document.getElementById('cliente').value.trim(),
+    contato:  document.getElementById('contato').value.trim(),
+    movel:    document.getElementById('movel').value.trim(),
+    endereco: document.getElementById('endereco').value.trim(),
+    preco:    document.getElementById('preco').value.trim(),
+    img:      canvas.toDataURL(),
+    strokes:  JSON.stringify(strokes)
+  };
+
+  if(!data.cliente){ alert('Informe o nome do cliente!'); return; }
+
+  if(editandoRascunho){
+    Object.assign(editandoRascunho, data);
+    editandoRascunho = null;
+  } else {
+    pedidos.push(data);
+  }
+
+  salvarTudo();
+  ['cliente','contato','movel','endereco','preco'].forEach(id =>
+    document.getElementById(id).value = ''
+  );
+  backupAntesDeMelhorar = null;
+  limpar();
+  atualizar();
+  show('clientes');
+}
+
+/* ---- EDITAR RASCUNHO ---- */
+function editarRascunho(nomeLista, i){
+  const lista = nomeLista === 'pedidos' ? pedidos : finalizados;
+  const p = lista[i];
+  editandoRascunho = p;
+
+  document.getElementById('cliente').value  = p.cliente;
+  document.getElementById('contato').value  = p.contato;
+  document.getElementById('movel').value    = p.movel;
+  document.getElementById('endereco').value = p.endereco;
+  document.getElementById('preco').value    = p.preco;
+
+  show('novo');
+  backupAntesDeMelhorar = null;
+  document.getElementById('btnUndoMelhorar').style.display = 'none';
+  setTimeout(() => {
+    redimensionarCanvas();
+    if(p.strokes){
+      strokes = JSON.parse(p.strokes);
+      redrawAll();
+    } else if(p.img){
+      // pedido antigo, salvo antes da função ✨ Melhorar existir: carrega como imagem
+      strokes = [];
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      img.src = p.img;
+    }
+  }, 80);
+}
+
+/* ---- EDITAR DADOS DO CARD ---- */
+function editarCard(btn, nomeLista, i){
+  const lista = nomeLista === 'pedidos' ? pedidos : finalizados;
+  const card = btn.closest('.item');
+  const p    = lista[i];
+
+  if(btn.dataset.edit !== '1'){
+    btn.dataset.edit  = '1';
+    btn.innerText     = '💾 Salvar Alterações';
+
+    card.querySelector('[data-campo="cliente"]').innerHTML   = `<input class="campo-edit" value="${esc(p.cliente)}">`;
+    card.querySelector('[data-campo="contato"]').innerHTML   = `<input class="campo-edit" value="${esc(p.contato)}">`;
+    card.querySelector('[data-campo="movel"]').innerHTML     = `<input class="campo-edit" value="${esc(p.movel)}">`;
+    card.querySelector('[data-campo="endereco"]').innerHTML  = `<input class="campo-edit" value="${esc(p.endereco)}">`;
+    card.querySelector('[data-campo="preco"]').innerHTML     = `<input class="campo-edit" value="${esc(p.preco)}">`;
+  } else {
+    btn.dataset.edit = '0';
+    btn.innerText    = '✏️ Editar Dados do Cliente';
+
+    p.cliente  = card.querySelector('[data-campo="cliente"] input').value;
+    p.contato  = card.querySelector('[data-campo="contato"] input').value;
+    p.movel    = card.querySelector('[data-campo="movel"] input').value;
+    p.endereco = card.querySelector('[data-campo="endereco"] input').value;
+    p.preco    = card.querySelector('[data-campo="preco"] input').value;
+
+    salvarTudo();
+    atualizar();
+  }
+}
+
+/* ---- PDF PROFISSIONAL ---- */
+function gerarPDF(nomeLista, i){
+  try {
+  const lista = nomeLista === 'pedidos' ? pedidos : finalizados;
+  const p = lista[i];
+  if(!p){ alert('Pedido não encontrado.'); return; }
+
+  const jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+  if(!jsPDFLib){ alert('jsPDF não carregado. Verifique sua conexão.'); return; }
+
+  const pdf = new jsPDFLib('p','mm','a4');
+  const W = 210, H = 297;
+
+  pdf.setFillColor(248,250,255);
+  pdf.rect(0,0,W,H,'F');
+
+  pdf.setFillColor(15,23,42);
+  pdf.rect(0,0,8,H,'F');
+
+  pdf.setFillColor(30,58,138);
+  pdf.rect(8,0,W-8,52,'F');
+
+  pdf.setFillColor(37,99,235);
+  pdf.rect(8,38,W-8,14,'F');
+
+  pdf.setTextColor(255,255,255);
+  pdf.setFontSize(32);
+  pdf.setFont('helvetica','bold');
+  pdf.text('KL ARTES', 20, 28);
+
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica','normal');
+  pdf.setTextColor(186,210,255);
+  pdf.text('MARCENARIA PROFISSIONAL  -  100% MDF', 20, 46);
+
+  const hoje = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  pdf.setFontSize(9);
+  pdf.setTextColor(186,210,255);
+  pdf.text(hoje, W-15, 46, {align:'right'});
+
+  const numPedido = String(i+1).padStart(4,'0');
+  pdf.setFontSize(10);
+  pdf.setTextColor(255,255,255);
+  pdf.setFont('helvetica','bold');
+  pdf.text('Pedido N ' + numPedido, W-15, 22, {align:'right'});
+
+  pdf.setFillColor(30,58,138);
+  pdf.roundedRect(20,62,W-30,8,2,2,'F');
+  pdf.setFontSize(9);
+  pdf.setFont('helvetica','bold');
+  pdf.setTextColor(255,255,255);
+  pdf.text('DADOS DO PEDIDO', 25, 67.5);
+
+  const campos = [
+    { label:'CLIENTE',   valor: p.cliente  },
+    { label:'CONTATO',   valor: p.contato  },
+    { label:'MOVEL',     valor: p.movel    },
+    { label:'ENDERECO',  valor: p.endereco },
+  ];
+
+  const colX = [20, 115];
+  const linhaY = 80;
+  const boxH = 18;
+  const boxW = 88;
+
+  campos.forEach((c, idx) => {
+    const cx = colX[idx % 2];
+    const cy = linhaY + Math.floor(idx / 2) * (boxH + 5);
+
+    pdf.setFillColor(220,228,255);
+    pdf.roundedRect(cx+1, cy+1, boxW, boxH, 3,3,'F');
+
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(cx, cy, boxW, boxH, 3,3,'F');
+
+    pdf.setFillColor(37,99,235);
+    pdf.rect(cx, cy, 3, boxH,'F');
+
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica','bold');
+    pdf.setTextColor(100,116,170);
+    pdf.text(c.label, cx+6, cy+6);
+
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica','normal');
+    pdf.setTextColor(15,23,42);
+    const val = String(c.valor||'-');
+    pdf.text(val.length>28 ? val.substring(0,27)+'...' : val, cx+6, cy+13);
+  });
+
+  const valorY = linhaY + 2*(boxH+5) + 4;
+  pdf.setFillColor(30,58,138);
+  pdf.roundedRect(20, valorY, W-30, 22, 4,4,'F');
+
+  pdf.setFillColor(37,99,235);
+  pdf.roundedRect(21, valorY+1, 50, 20, 3,3,'F');
+
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica','bold');
+  pdf.setTextColor(186,210,255);
+  pdf.text('VALOR TOTAL', 46, valorY+9, {align:'center'});
+
+  pdf.setFontSize(14);
+  pdf.setTextColor(255,255,255);
+  pdf.text('R$ ' + (p.preco||'0,00'), 46, valorY+17, {align:'center'});
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(186,210,255);
+  pdf.setFont('helvetica','normal');
+  pdf.text('Valor sujeito a confirmacao apos visita tecnica.', 80, valorY+11);
+
+  const statusTxt = nomeLista === 'finalizados' ? 'FINALIZADO' : 'EM ANDAMENTO';
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica','bold');
+  if(nomeLista === 'finalizados'){ pdf.setTextColor(34,197,94); }
+  else { pdf.setTextColor(251,191,36); }
+  pdf.text(statusTxt, W-22, valorY+11, {align:'right'});
+
+  const rascY = valorY + 32;
+  pdf.setFillColor(30,58,138);
+  pdf.roundedRect(20, rascY, W-30, 8, 2,2,'F');
+  pdf.setFontSize(9);
+  pdf.setFont('helvetica','bold');
+  pdf.setTextColor(255,255,255);
+  pdf.text('RASCUNHO / DESENHO DO PROJETO', 25, rascY+5.5);
+
+  const imgY = rascY + 10;
+  const imgH = 110;
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(20, imgY, W-30, imgH, 4,4,'F');
+  pdf.setDrawColor(200,210,240);
+  pdf.setLineWidth(0.5);
+  pdf.roundedRect(20, imgY, W-30, imgH, 4,4,'S');
+
+  if(p.img && p.img.length > 100){
+    try{ pdf.addImage(p.img,'PNG', 22, imgY+2, W-34, imgH-4); }
+    catch(e){ 
+      pdf.setTextColor(150,150,150);
+      pdf.setFontSize(10);
+      pdf.text('(rascunho nao disponivel)', W/2, imgY+imgH/2, {align:'center'});
+    }
+  } else {
+    pdf.setTextColor(180,180,180);
+    pdf.setFontSize(10);
+    pdf.text('Sem rascunho anexado', W/2, imgY+imgH/2, {align:'center'});
+  }
+
+  pdf.setFillColor(15,23,42);
+  pdf.rect(0, H-20, W, 20,'F');
+
+  pdf.setFillColor(30,58,138);
+  pdf.rect(0, H-20, 8, 20,'F');
+
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica','bold');
+  pdf.setTextColor(186,210,255);
+  pdf.text('KL ARTES - Marcenaria Profissional', W/2, H-12, {align:'center'});
+
+  pdf.setFontSize(7);
+  pdf.setFont('helvetica','normal');
+  pdf.setTextColor(100,116,170);
+  pdf.text('Este documento e um orcamento/pedido interno. Nao tem valor fiscal.', W/2, H-6, {align:'center'});
+
+  pdf.setTextColor(100,116,170);
+  pdf.text('1 / 1', W-15, H-6, {align:'right'});
+
+  pdf.save('KL-ARTES-' + (p.cliente||'pedido').replace(/[^a-zA-Z0-9]/g,'-') + '-' + numPedido + '.pdf');
+  } catch(err) {
+    alert('Erro ao gerar PDF: ' + err.message);
+    console.error(err);
+  }
+}
+
+/* ---- FINALIZAR ---- */
+function finalizar(i){
+  finalizados.push(pedidos[i]);
+  pedidos.splice(i,1);
+  salvarTudo();
+  atualizar();
+  show('finalizados');
+}
+
+/* ---- DELETAR ---- */
+function deletarPedido(i){
+  if(!confirm('Excluir este pedido em andamento?')) return;
+  pedidos.splice(i,1);
+  salvarTudo();
+  atualizar();
+}
+
+function deletarFinalizado(i){
+  if(!confirm('Excluir este pedido finalizado?')) return;
+  finalizados.splice(i,1);
+  salvarTudo();
+  atualizar();
+}
+
+/* ---- STORAGE ---- */
+function salvarTudo(){
+  localStorage.setItem('pedidos',     JSON.stringify(pedidos));
+  localStorage.setItem('finalizados', JSON.stringify(finalizados));
+}
+
+/* ---- IMPORTAR / EXPORTAR ---- */
+function exportarDados(){
+  const data = { pedidos, finalizados };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'kl-artes-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importarDados(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      const novosPedidos     = Array.isArray(data.pedidos)     ? data.pedidos     : (Array.isArray(data) ? data : []);
+      const novosFinalizados = Array.isArray(data.finalizados) ? data.finalizados : [];
+      if(!novosPedidos.length && !novosFinalizados.length){
+        alert('Esse arquivo não tem pedidos válidos.');
+        return;
+      }
+      pedidos     = pedidos.concat(novosPedidos);
+      finalizados = finalizados.concat(novosFinalizados);
+      salvarTudo();
+      atualizar();
+      alert('✅ Importado! ' + (novosPedidos.length + novosFinalizados.length) + ' pedido(s) adicionados.');
+    } catch(err){
+      alert('Erro ao importar: o arquivo não é um JSON válido.');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+/* ---- ESCAPE HTML ---- */
+function esc(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+/* ---- LISTAS ---- */
+function cardHTML(p, i, lista, nomeExcluir, btnExtra){
+  return `
+  <div class="item">
+   <span data-campo="cliente"><b>👤 ${esc(p.cliente)}</b></span><br>
+   <span class="badge" data-campo="movel">🪑 ${esc(p.movel)}</span>
+   <span class="badge" data-campo="contato">📞 ${esc(p.contato)}</span>
+   <span class="badge" data-campo="endereco">📍 ${esc(p.endereco)}</span>
+   <span class="badge" data-campo="preco">💰 R$ ${esc(p.preco)}</span>
+   <img src="${p.img}" alt="Rascunho do pedido">
+   <button class="primary"       onclick="editarCard(this,'${lista}',${i})">✏️ Editar Dados</button>
+   <button class="primary alt"   onclick="editarRascunho('${lista}',${i})">🎨 Editar Desenho</button>
+   <button class="primary"       onclick="gerarPDF('${lista}',${i})">📄 Gerar PDF</button>
+   ${btnExtra}
+   <button class="primary danger" onclick="${nomeExcluir}(${i})">🗑️ ${lista==='pedidos'?'Excluir':'Excluir Definitivo'}</button>
+  </div>`;
+}
+
+function atualizar(){
+  const bloco = document.getElementById('blocoImportar');
+  if(bloco) bloco.style.display = (pedidos.length === 0 && finalizados.length === 0) ? 'block' : 'none';
+
+  document.getElementById('listaClientes').innerHTML = pedidos.map((p,i) =>
+    cardHTML(p, i, 'pedidos', 'deletarPedido',
+      `<button class="primary danger" onclick="finalizar(${i})">✅ Finalizar</button>`)
+  ).join('');
+
+  document.getElementById('listaFinalizados').innerHTML = finalizados.map((p,i) =>
+    cardHTML(p, i, 'finalizados', 'deletarFinalizado', '')
+  ).join('');
+}
+
+atualizar();
+
+/* ---- SERVICE WORKER (PWA offline) ---- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('SW registrado ✅');
+        reg.addEventListener('updatefound', () => {
+          const novo = reg.installing;
+          if(!novo) return;
+          novo.addEventListener('statechange', () => {
+            if(novo.state === 'activated' && navigator.serviceWorker.controller){
+              window.location.reload();
+            }
+          });
+        });
+      })
+      .catch(e => console.warn('SW erro:', e));
+
+    let jaRecarregou = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if(jaRecarregou) return;
+      jaRecarregou = true;
+      window.location.reload();
+    });
+  });
+}
+</script>
+</body>
+</html>
